@@ -1,15 +1,18 @@
-# Gutenberg
+# Gutenberg Offline
+This scraper downloads the whole [Project
+Gutenberg](https://www.gutenberg.org) library and puts it in a
+[ZIM](https://openzim.org) file, a clean and user friendly format for
+storing content for offline usage.
 
-[![Build Status](https://github.com/openzim/gutenberg/workflows/CI/badge.svg?query=branch%3Amaster)](https://github.com/openzim/gutenberg/actions?query=branch%3Amaster)
-[![codecov](https://codecov.io/gh/openzim/gutenberg/branch/master/graph/badge.svg)](https://codecov.io/gh/openzim/gutenberg)
-[![Docker](https://img.shields.io/docker/v/openzim/gutenberg?label=docker&sort=semver)](https://hub.docker.com/r/openzim/gutenberg/)
-[![PyPI version shields.io](https://img.shields.io/pypi/v/gutenberg2zim.svg)](https://pypi.org/project/gutenberg2zim/)
+[![CodeFactor](https://www.codefactor.io/repository/github/openzim/gutenberg/badge)](https://www.codefactor.io/repository/github/openzim/gutenberg)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![codecov](https://codecov.io/gh/openzim/gutenberg/branch/main/graph/badge.svg)](https://codecov.io/gh/openzim/gutenberg)
+[![PyPI version shields.io](https://img.shields.io/pypi/v/gutenberg2zim.svg)](https://pypi.org/project/gutenberg2zim/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gutenberg2zim.svg)](https://pypi.org/project/gutenberg2zim/)
+[![Docker](https://ghcr-badge.egpl.dev/openzim/gutenberg/latest_tag?label=docker)](https://ghcr.io/openzim/gutenberg)
 
-Scraper to create ZIM files from [Project Gutenberg](https://www.gutenberg.org/).
-
-The goal of this project is to create a tool to make available the contents of Project Gutenberg
-as [ZIM files](http://www.openzim.org/).
+> [!WARNING]  
+> This scraper is now known to have a serious flaw. A critical bug https://github.com/openzim/gutenberg/issues/219 has been discovered which leads to incomplete archives. Work on https://github.com/openzim/gutenberg/issues/97 (complete rewrite of the scraper logic) now seems mandatory to fix these annoying problems. We however currently miss the necessary bandwidth to address these changes. Help is of course welcomed, but be warned this is going to be a significant project (at least 10 man.days to change the scraper logic so that we can fix the issue I would say, so probably the double since human is always bad at estimations).
 
 ## Usage
 
@@ -39,81 +42,117 @@ docker run ghcr.io/openzim/gutenberg:latest gutenberg2zim --help
 ```
 
 
-### Manual Installation
+## Coding guidelines
+Main coding guidelines comes from the [openZIM Wiki](https://github.com/openzim/overview/wiki)
 
-If you prefer not to use Docker, you can install the scraper directly:
+### Setting up the environment
 
-#### Requirements
+Here we will setup everything needed to run the source version from your machine, supposing you want to modify it. If you simply want to run the tool, you should either install the PyPi package or use the Docker image. Docker image can also be used for development but needs a bit of tweaking for live reload of your code modifications.
 
-* Python 3.6+
-* [Beautiful Soup 4](https://www.crummy.com/software/BeautifulSoup/)
-* [lxml](http://lxml.de)
-* [zimscraperlib](https://github.com/openzim/python-scraperlib)
-* wget
-* jpegoptim
-* pngquant
-* [gifsicle](https://www.lcdf.org/gifsicle/)
-* [ImageMagick](https://www.imagemagick.org/)
-* [Calibre](https://calibre-ebook.com/)
+### Install the dependencies
 
-#### Installation
+First, ensure you use the proper Python version, inline with the requirement of `pyproject.toml` (you might for instance use `pyenv` to manage multiple Python versions in parallel).
 
-```bash
-pip3 install gutenberg2zim
+You then need to install the various tools/libraries needed by the scraper.
+
+#### GNU/Linux
+
+```
+sudo apt-get install python-pip python-dev libxml2-dev libxslt-dev advancecomp jpegoptim pngquant p7zip-full gifsicle curl zip zim-tools
 ```
 
-#### Running
+#### macOS
 
-```bash
-gutenberg2zim --mirror=http://mirror.switch.ch/mirror/gutenberg/
+```
+brew install advancecomp jpegoptim pngquant p7zip gifsicle
 ```
 
-### Common Options
+### Setup the package
 
-* `--help` displays the help.
-* `--zim-file=myfile.zim` sets the ZIM file name.
-* `--language=en,fr` scrape English and French books (and any other comma-separated language)
-* `--formats=html,pdf` download HTML and PDF file formats (and any other comma-separated format)
-* `--books=all` download all books. You can specify particular books using book IDs: `--books=123,456,789`
-* `--concurrency=3` run 3 parallel download processes
-* `--dl-concurrency=3` run 3 parallel download processes for book files (HTML, PDF, etc.)
-* `--low-memory` if you have limited memory (typically from a container/CI), scraper will use slower but less memory-intensive operations
-* `--mirror=https://.../` specify a custom Project Gutenberg mirror URL
-* `--no-index` do not create search index (not recommended)
-* `--title=TITLE` sets the ZIM title
-* `--optimization-cache=FOLDER` sets a folder to cache optimized files. Allowing for faster re-runs
-* `--debug` to log at DEBUG level
-* `--keep` to keep build folder and not delete it at the end
-* `--output=FOLDER` folder to write the ZIM into
-
-## Project Gutenberg Mirror
-
-For best performance and to avoid unnecessary load on Project Gutenberg's servers, it's recommended to use a mirror:
+First, clone this repository.
 
 ```bash
-gutenberg2zim --mirror=http://mirror.switch.ch/mirror/gutenberg/
+git clone git@github.com:kiwix/gutenberg.git
+cd gutenberg
 ```
 
-Common mirrors are:
-* http://mirror.switch.ch/mirror/gutenberg/
-* http://www.gutenberg.org/dirs/
-* http://aleph.gutenberg.org/
-* http://www.gutenberg.lib.md.us/
-
-## Docker Development Environment
-
-For development purposes, you can build the Docker image locally:
+If you do not already have it on your system, install `hatch` to build the software and manage virtual environments (you might be interested by our detailed [Developer Setup](https://github.com/openzim/_python-bootstrap/wiki/Developer-Setup) as well).
 
 ```bash
-docker build -t openzim/gutenberg .
+pip3 install hatch
 ```
 
-Then run it with:
+Start a hatch shell: this will install software including dependencies in an isolated virtual environment.
 
 ```bash
-docker run -v /path/to/output:/output openzim/gutenberg gutenberg2zim --mirror=http://mirror.switch.ch/mirror/gutenberg/ --dl-concurrency=1
+hatch shell
 ```
+
+That's it. You can now run `gutenberg2zim` from your terminal.
+
+## Getting started
+
+After setting up the whole environment you can just run the main
+script `gutenberg2zim`.  It will download, process and export the
+content.
+
+```bash
+./gutenberg2zim
+```
+
+#### Arguments
+
+You can also specify parameters to customize the content.  Only want
+books with the Id 100-200? Books only in French? English? Or only
+those both? No problem!  You can also include or exclude book
+formats. You can add bookshelves and the option to search books by
+title to enrich your user experince.
+
+```bash
+./gutenberg2zim -l en,fr -f pdf --books 100-200 --bookshelves --title-search
+```
+
+This will download books in English and French that have the Id 100 to
+200 in the HTML (default) and PDF format.
+
+You can find the full arguments list below:
+
+```bash
+-h --help                       Display this help message
+-y --wipe-db                    Empty cached book metadata
+-F --force                      Redo step even if target already exist
+
+-l --languages=<list>           Comma-separated list of lang codes to filter export to (preferably ISO 639-1, else ISO 639-3)
+-f --formats=<list>             Comma-separated list of formats to filter export to (epub, html, pdf, all)
+
+-e --static-folder=<folder>     Use-as/Write-to this folder static HTML
+-z --zim-file=<file>            Write ZIM into this file path
+-t --zim-title=<title>          Set ZIM title
+-n --zim-desc=<description>     Set ZIM description
+-d --dl-folder=<folder>         Folder to use/write-to downloaded ebooks
+-u --rdf-url=<url>              Alternative rdf-files.tar.bz2 URL
+-b --books=<ids>                Execute the processes for specific books, separated by commas, or dashes for intervals
+-c --concurrency=<nb>           Number of concurrent process for processing tasks
+--dlc=<nb>                      Number of concurrent *download* process for download (overwrites --concurrency). if server blocks high rate requests
+-m --one-language-one-zim=<folder> When more than 1 language, do one zim for each   language (and one with all)
+--no-index                      Do NOT create full-text index within ZIM file
+--check                         Check dependencies
+--prepare                       Download rdf-files.tar.bz2
+--parse                         Parse all RDF files and fill-up the DB
+--download                      Download ebooks based on filters
+--zim                           Create a ZIM file
+--title-search                  Add field to search a book by title and directly jump to it
+--bookshelves                   Add bookshelves
+--optimization-cache=<url>      URL with credentials to S3 bucket for using as optimization cache
+--use-any-optimized-version     Try to use any optimized version found on optimization cache
+```
+
+## Screenshots
+
+![](https://raw.githubusercontent.com/openzim/gutenberg/main/pictures/screenshot_1.png)
+![](https://raw.githubusercontent.com/openzim/gutenberg/main/pictures/screenshot_2.png)
 
 ## License
 
-[GPLv3](https://www.gnu.org/licenses/gpl-3.0) or later, see [LICENSE](LICENSE) for more details.
+[GPLv3](https://www.gnu.org/licenses/gpl-3.0) or later, see
+[LICENSE](LICENSE) for more details.
