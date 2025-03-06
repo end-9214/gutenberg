@@ -16,14 +16,14 @@ storing content for offline usage.
 
 ## Getting Started
 
-The recommended way to run the Gutenberg scraper is using Docker, as it comes with all required dependencies pre-installed. Docker also ensures that the ZIM file is available outside of the container, even when the `-m` option is not used.
+The recommended way to run the Gutenberg scraper is using Docker, as it comes with all required dependencies pre-installed.
 
 ### Running with Docker
 
 1. **Run the scraper with Docker**:
 
 ```bash
-docker run -it --rm -v $(pwd)/output:/data ghcr.io/openzim/gutenberg:latest gutenberg2zim -m /data
+docker run -it --rm -v $(pwd)/output:/data ghcr.io/openzim/gutenberg:latest gutenberg2zim /data
 ```
 
 The `-v $(pwd)/output:/data` option mounts the `output` folder in your current directory to the `/data` folder inside the container. This ensures that the ZIM file is saved to your local machine, making it available outside of Docker.
@@ -36,11 +36,51 @@ To view all the available options for `gutenberg2zim`, run:
 docker run ghcr.io/openzim/gutenberg:latest gutenberg2zim --help
 ```
 
-### Important Notes on the `-m` Option
+### Arguments
 
-The `-m` option tells the scraper to create **one ZIM per language**, rather than one ZIM containing all selected books. While this can be useful in some cases, most users will likely want a single ZIM file for their selection of books. Therefore, **do not use the `-m` option unless you specifically want separate ZIM files for each language**.
+Customize the content download with the following options. For example, to download books in English or French with IDs 100 to 200 and only in PDF format:
 
-## Coding Guidelines
+```bash
+docker run ghcr.io/openzim/gutenberg:latest gutenberg2zim -l en,fr -f pdf --books 100-200 --bookshelves --title-search
+```
+
+This will download books in English and French that have the Id 100 to
+200 in the HTML (default) and PDF format.
+
+You can find the full arguments list below:
+
+```bash
+-h --help                       Display this help message
+-y --wipe-db                    Empty cached book metadata
+-F --force                      Redo step even if target already exist
+
+-l --languages=<list>           Comma-separated list of lang codes to filter export to (preferably ISO 639-1, else ISO 639-3)
+-f --formats=<list>             Comma-separated list of formats to filter export to (epub, html, pdf, all)
+
+-e --static-folder=<folder>     Use-as/Write-to this folder static HTML
+-z --zim-file=<file>            Write ZIM into this file path
+-t --zim-title=<title>          Set ZIM title
+-n --zim-desc=<description>     Set ZIM description
+-d --dl-folder=<folder>         Folder to use/write-to downloaded ebooks
+-u --rdf-url=<url>              Alternative rdf-files.tar.bz2 URL
+-b --books=<ids>                Execute the processes for specific books, separated by commas, or dashes for intervals
+-c --concurrency=<nb>           Number of concurrent process for processing tasks
+--dlc=<nb>                      Number of concurrent *download* process for download (overwrites --concurrency). if server blocks high rate requests
+-m --one-language-one-zim=<folder> When more than 1 language, do one zim for each   language (and one with all)
+--no-index                      Do NOT create full-text index within ZIM file
+--check                         Check dependencies
+--prepare                       Download rdf-files.tar.bz2
+--parse                         Parse all RDF files and fill-up the DB
+--download                      Download ebooks based on filters
+--zim                           Create a ZIM file
+--title-search                  Add field to search a book by title and directly jump to it
+--bookshelves                   Add bookshelves
+--optimization-cache=<url>      URL with credentials to S3 bucket for using as optimization cache
+--use-any-optimized-version     Try to use any optimized version found on optimization cache
+```
+
+
+## Contributing Code
 
 Main coding guidelines are from the [openZIM Wiki](https://github.com/openzim/overview/wiki).
 
@@ -89,48 +129,6 @@ hatch shell
 
 That's it. You can now run `gutenberg2zim` from your terminal.
 
-## Arguments
-
-Customize the content download with the following options. For example, to download books in English and French with IDs 100-200 and in PDF format:
-
-```bash
-./gutenberg2zim -l en,fr -f pdf --books 100-200 --bookshelves --title-search
-```
-
-This will download books in English and French that have the Id 100 to
-200 in the HTML (default) and PDF format.
-
-You can find the full arguments list below:
-
-```bash
--h --help                       Display this help message
--y --wipe-db                    Empty cached book metadata
--F --force                      Redo step even if target already exist
-
--l --languages=<list>           Comma-separated list of lang codes to filter export to (preferably ISO 639-1, else ISO 639-3)
--f --formats=<list>             Comma-separated list of formats to filter export to (epub, html, pdf, all)
-
--e --static-folder=<folder>     Use-as/Write-to this folder static HTML
--z --zim-file=<file>            Write ZIM into this file path
--t --zim-title=<title>          Set ZIM title
--n --zim-desc=<description>     Set ZIM description
--d --dl-folder=<folder>         Folder to use/write-to downloaded ebooks
--u --rdf-url=<url>              Alternative rdf-files.tar.bz2 URL
--b --books=<ids>                Execute the processes for specific books, separated by commas, or dashes for intervals
--c --concurrency=<nb>           Number of concurrent process for processing tasks
---dlc=<nb>                      Number of concurrent *download* process for download (overwrites --concurrency). if server blocks high rate requests
--m --one-language-one-zim=<folder> When more than 1 language, do one zim for each   language (and one with all)
---no-index                      Do NOT create full-text index within ZIM file
---check                         Check dependencies
---prepare                       Download rdf-files.tar.bz2
---parse                         Parse all RDF files and fill-up the DB
---download                      Download ebooks based on filters
---zim                           Create a ZIM file
---title-search                  Add field to search a book by title and directly jump to it
---bookshelves                   Add bookshelves
---optimization-cache=<url>      URL with credentials to S3 bucket for using as optimization cache
---use-any-optimized-version     Try to use any optimized version found on optimization cache
-```
 
 ## Screenshots
 
