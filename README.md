@@ -14,38 +14,37 @@ storing content for offline usage.
 > [!WARNING]  
 > This scraper is now known to have a serious flaw. A critical bug https://github.com/openzim/gutenberg/issues/219 has been discovered which leads to incomplete archives. Work on https://github.com/openzim/gutenberg/issues/97 (complete rewrite of the scraper logic) now seems mandatory to fix these annoying problems. We however currently miss the necessary bandwidth to address these changes. Help is of course welcomed, but be warned this is going to be a significant project (at least 10 man.days to change the scraper logic so that we can fix the issue I would say, so probably the double since human is always bad at estimations).
 
-## Usage
+## Getting Started
 
-### Using Docker (Recommended)
+The recommended way to run the Gutenberg scraper is using Docker, as it comes with all required dependencies pre-installed. Docker also ensures that the ZIM file is available outside of the container, even when the `-m` option is not used.
 
-Docker is the recommended way to use the Gutenberg scraper as it comes with all the required dependencies pre-installed.
+### Running with Docker
 
-1. **Pull the Docker image**:
-
-```bash
-docker pull ghcr.io/openzim/gutenberg:latest
-```
-
-2. **Run the scraper**:
+1. **Run the scraper with Docker**:
 
 ```bash
 docker run -it --rm -v $(pwd)/output:/data ghcr.io/openzim/gutenberg:latest gutenberg2zim -m /data
 ```
 
-Important notes:
-- The `-v $(pwd)/output:/data` option mounts the `output` folder in your current directory to the `/data` folder inside the container, allowing you to access the downloaded ebooks on your local machine.
+The `-v $(pwd)/output:/data` option mounts the `output` folder in your current directory to the `/data` folder inside the container. This ensures that the ZIM file is saved to your local machine, making it available outside of Docker.
 
-3. **Show available options**:
+2. **Show available options**:
+
+To view all the available options for `gutenberg2zim`, run:
 
 ```bash
 docker run ghcr.io/openzim/gutenberg:latest gutenberg2zim --help
 ```
 
+### Important Notes on the `-m` Option
 
-## Coding guidelines
-Main coding guidelines comes from the [openZIM Wiki](https://github.com/openzim/overview/wiki)
+The `-m` option tells the scraper to create **one ZIM per language**, rather than one ZIM containing all selected books. While this can be useful in some cases, most users will likely want a single ZIM file for their selection of books. Therefore, **do not use the `-m` option unless you specifically want separate ZIM files for each language**.
 
-### Setting up the environment
+## Coding Guidelines
+
+Main coding guidelines are from the [openZIM Wiki](https://github.com/openzim/overview/wiki).
+
+### Setting Up the Environment
 
 Here we will setup everything needed to run the source version from your machine, supposing you want to modify it. If you simply want to run the tool, you should either install the PyPi package or use the Docker image. Docker image can also be used for development but needs a bit of tweaking for live reload of your code modifications.
 
@@ -90,23 +89,9 @@ hatch shell
 
 That's it. You can now run `gutenberg2zim` from your terminal.
 
-## Getting started
+## Arguments
 
-After setting up the whole environment you can just run the main
-script `gutenberg2zim`.  It will download, process and export the
-content.
-
-```bash
-./gutenberg2zim
-```
-
-#### Arguments
-
-You can also specify parameters to customize the content.  Only want
-books with the Id 100-200? Books only in French? English? Or only
-those both? No problem!  You can also include or exclude book
-formats. You can add bookshelves and the option to search books by
-title to enrich your user experince.
+Customize the content download with the following options. For example, to download books in English and French with IDs 100-200 and in PDF format:
 
 ```bash
 ./gutenberg2zim -l en,fr -f pdf --books 100-200 --bookshelves --title-search
