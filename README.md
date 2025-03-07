@@ -23,10 +23,10 @@ The recommended way to run the Gutenberg scraper is using Docker, as it comes wi
 1. **Run the scraper with Docker**:
 
 ```bash
-docker run -it --rm -v $(pwd)/output:/data ghcr.io/openzim/gutenberg:latest gutenberg2zim /data
+docker run -it --rm -v $(pwd)/output:/output ghcr.io/openzim/gutenberg:latest gutenberg2zim
 ```
 
-The `-v $(pwd)/output:/data` option mounts the `output` folder in your current directory to the `/data` folder inside the container. This ensures that the ZIM file is saved to your local machine, making it available outside of Docker.
+The `-v $(pwd)/output:/output` option mounts the `output` folder in your current directory to the `output` folder inside the container (which is the working directory). This ensures that the ZIM file is saved to your local machine.
 
 2. **Show available options**:
 
@@ -41,11 +41,13 @@ docker run ghcr.io/openzim/gutenberg:latest gutenberg2zim --help
 Customize the content download with the following options. For example, to download books in English or French with IDs 100 to 200 and only in PDF format:
 
 ```bash
-docker run ghcr.io/openzim/gutenberg:latest gutenberg2zim -l en,fr -f pdf --books 100-200 --bookshelves --title-search
+docker run -it --rm -v $(pwd)/output:/output ghcr.io/openzim/gutenberg:latest gutenberg2zim -l en,fr -f pdf --books 100-200 --bookshelves --title-search
 ```
 
 This will download books in English and French that have the Id 100 to
 200 in the HTML (default) and PDF format.
+The -it flags allow you to see progress.
+The --rm flag removes the container after completion.
 
 You can find the full arguments list below:
 
